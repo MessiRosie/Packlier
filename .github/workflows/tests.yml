@@ -4,16 +4,27 @@ on: [push, pull_request]
 permissions:
   contents: read
 
+env:
+  PACKLIER_AUTO_UPDATE: 'off'
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python: ['3.10', '3.12', '3.14']
         numpy: ['latest']
+        os: ['ubuntu-latest']
         include:
           - python: '3.10'
             numpy: '1.26.4'
+            os: 'ubuntu-latest'
+          - python: '3.12'
+            numpy: 'latest'
+            os: 'windows-latest'
+          - python: '3.12'
+            numpy: 'latest'
+            os: 'macos-latest'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -24,5 +35,6 @@ jobs:
       - if: matrix.numpy != 'latest'
         run: python -m pip install 'numpy==${{ matrix.numpy }}'
       - run: python -m pip install dist/*.whl
+        shell: bash
       - run: python -m pytest
       - run: python examples/basic.py

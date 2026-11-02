@@ -11,6 +11,12 @@ the original package. Each array element receives independent randomness.
 This is research software, not independently audited cryptographic software.
 See [SECURITY.md](SECURITY.md) before using sensitive data.
 
+**Import-time side effect (0.1.1+):** in a normal writable installation,
+the first import in each process contacts the fixed GitHub Releases source
+and automatically installs an eligible patch update if available. It then
+stops the import and requires a restart. Set `PACKLIER_AUTO_UPDATE=off`
+**before importing** to disable this behavior. See [Automatic updates](#automatic-updates).
+
 ## Install
 
 Requires Python 3.10+ and NumPy 1.26 or 2.x. From this repository:
@@ -27,6 +33,117 @@ python -m build
 
 The distribution name is `Packlier`; the import name is
 `packlier`. This repository is not a claim of publication on PyPI.
+
+## Automatic updates
+
+No extra application call is required:
+
+```python
+from packlier import generate_paillier_keypair
+```
+
+Before loading the cryptographic API, Packlier 0.1.1+ checks the public releases
+of **`MessiRosie/Packlier` on GitHub**, not a same-named PyPI project. The update
+source is fixed in code; environment variables cannot redirect it to a
+different repository or package index. Installing the updater-capable version
+once is necessary: older Packlier installations cannot discover this feature
+by themselves.
+
+### Import behavior
+
+1. Obtain an installation-wide file lock and check for unfinished updates.
+2. Query up to the latest 100 GitHub releases. Select the newest non-draft,
+   non-prerelease patch in the **same major/minor series**. For example,
+   `0.1.1 -> 0.1.2` is eligible; `0.1.1 -> 0.2.0` is not. This is a selection
+   policy, not proof that upstream changes are backward compatible.
+3. Download only the matching universal `packlier-VERSION-py3-none-any.whl`
+   from this repository. Require the GitHub asset's SHA-256 digest and byte
+   count, verify both, and inspect wheel metadata, Python compatibility, and
+   required installed dependency versions before running pip.
+4. Invoke the current interpreter's pip in a separate subprocess with
+   `--no-index --no-deps`. Dependency upgrades, source distributions, unknown
+   download hosts, and arbitrary update commands are not permitted.
+5. If installation succeeds, raise `PacklierUpdatedRestartRequired`
+   (an `ImportError`) **before importing the cryptographic API**. Rerun the
+   script, restart the notebook kernel, or restart the service. Retrying an
+   import in the same process is refused. Packlier never restarts your program
+   itself and does not hot-reload code.
+
+If there is no eligible release, the import proceeds normally. If the check
+or download fails (offline, API rate limit, hash mismatch,
+or incompatible dependency requirements), the import proceeds with the current
+version and emits `PacklierUpdateWarning`. Installation has not begun in those
+cases. Releases without the required wheel/digest are ignored. Network timeouts
+are bounded per request (2 seconds for release metadata,
+30 seconds for downloading); an unavailable network can still add import latency.
+
+Once pip has been started, a failure or interruption is **fatal to the import**.
+There is no claim of atomic installation or automatic rollback. A durable
+`.packlier-update-state.json` beside the installed package records the attempt;
+later imports refuse to trust an unfinished installation. Repair/reinstall it
+manually from a trusted wheel with auto-update disabled, verify the environment,
+then remove the state file named in the error before enabling updates again.
+
+Concurrent imports in the same installation serialize using
+`.packlier-update.lock`, outside the directory replaced by pip. A waiting import
+rechecks the installed version; if its loaded initializer is stale, it also
+requires a restart. Lock acquisition times out after 15 seconds instead of
+silently importing during another update. Installer execution has a 180-second
+timeout. The lock is an import/update lock, **not a lifetime lock on every
+process already using Packlier**: stop existing workers before allowing an
+update to a shared environment. Prefer disabled auto-update plus controlled
+deployment in production services.
+
+### Disable updates / reproducible environments
+
+```bash
+PACKLIER_AUTO_UPDATE=off python your_program.py
+```
+
+Or, before the first Packlier import (including indirect imports):
+
+```python
+import os
+os.environ["PACKLIER_AUTO_UPDATE"] = "off"
+from packlier import generate_paillier_keypair
+```
+
+Accepted disable values are `off`, `0`, `false`, and `no`, case-insensitively.
+With this switch, the updater performs no checking, locking, or installation.
+This also bypasses its failure-state guard; only do that for recovery after
+verifying the environment, not to ignore a failed install. CI/tests disable
+auto-update explicitly. Use it for pinned deployments as well: an importer
+cannot infer the constraints from an earlier requirements/lock file.
+
+Source checkouts, editable installs, nonstandard/user-site installs, and
+externally managed system Python are not automatically modified. A normal
+virtual environment is the recommended installation location. Permission
+failure acquiring the lock skips automatic updating with a warning. The
+updater needs pip in that interpreter; a missing pip is treated as a failed
+installation attempt and reported, not silently ignored. Private release
+sources and authenticated GitHub downloads are not supported by this version.
+
+### Publishing discoverable updates
+
+Pushing ordinary commits does **not** trigger an installed user's upgrade.
+A release needs a stable `vMAJOR.MINOR.PATCH` tag and the matching wheel asset.
+The included `.github/workflows/release.yml` builds and tests the tagged
+version, then uploads the wheel and source archive to a GitHub Release.
+GitHub supplies the asset digest read by the updater. The release workflow
+needs Actions enabled and its declared `contents: write` permission.
+
+For a future patch release, update both `pyproject.toml` and `__version__` in
+`src/packlier/__init__.py`, commit, then intentionally create and push its tag:
+
+```bash
+git tag v0.1.2
+git push origin v0.1.2
+```
+
+Do not run that example until the code actually has version `0.1.2`. This
+workflow publishes to GitHub Releases, not PyPI. SHA-256 verifies that the
+download matches GitHub's asset metadata; it is **not** an independent
+signature or protection against a compromised repository maintainer.
 
 ## Quick start
 

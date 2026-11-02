@@ -1,5 +1,34 @@
 # Security boundaries
 
+## Import-time automatic installation
+
+Since 0.1.1, first import in a managed installation can contact GitHub and
+install a newer same-major/minor stable patch without another confirmation.
+Set `PACKLIER_AUTO_UPDATE=off` before any import to disable this side effect.
+Use the opt-out for production, air-gapped, and reproducible/pinned environments.
+
+The source is fixed to public releases of `MessiRosie/Packlier`. Only a
+universal wheel with matching name/version, compatible installed dependencies,
+and a matching GitHub asset SHA-256/size is accepted. HTTPS redirects are
+restricted to GitHub's listed download hosts. The digest is not a maintainer
+signature: compromise of that repository or release publishing permissions
+can compromise auto-updating clients. Protect those permissions accordingly.
+
+Installation runs as the importing user through the current interpreter's pip;
+it never escalates privileges and does not upgrade dependencies. It is not a
+transactional package manager. Failure after starting installation stops the
+import and leaves a persistent failure record requiring manual repair. Success
+also stops the import and requires restarting the process. No automatic
+rollback, hot reload, or unattended process restart is promised.
+
+The file lock serializes participating imports/updates but cannot prevent
+external pip commands or already-running processes from using the same files.
+Quiesce workers before updating shared environments. The opt-out bypasses the
+updater entirely, including its failure record; do not use it to run code from
+an unverified failed installation.
+
+## Cryptography
+
 - This package has not received an independent cryptographic audit. Passing
   tests is not a security certification. Do not treat it as a production
   security boundary without a separate review and threat model.
