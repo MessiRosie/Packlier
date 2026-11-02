@@ -1,4 +1,4 @@
-"""NumPy protocol layer over python-paillier's scalar cryptography."""
+"""Packlier's NumPy protocol layer over python-paillier's scalar cryptography."""
 
 from concurrent.futures import ProcessPoolExecutor
 import copy

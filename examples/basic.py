@@ -1,6 +1,6 @@
 import numpy as np
 
-from paillier_numpy import generate_paillier_keypair
+from packlier import generate_paillier_keypair
 
 
 def main():

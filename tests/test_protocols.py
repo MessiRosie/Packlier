@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from paillier_numpy import EncryptedNumber, generate_paillier_keypair, toEncryptedNumber
+from packlier import EncryptedNumber, generate_paillier_keypair, toEncryptedNumber
 
 
 @pytest.mark.parametrize("shape", [(), (4,), (2, 3), (2, 1, 3), (0,), (2, 0)])

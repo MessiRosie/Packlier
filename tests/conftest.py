@@ -1,6 +1,6 @@
 import pytest
 
-from paillier_numpy import generate_paillier_keypair
+from packlier import generate_paillier_keypair
 
 
 @pytest.fixture(scope="session")

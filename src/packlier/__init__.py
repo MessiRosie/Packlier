@@ -1,4 +1,4 @@
-"""Encrypted NumPy arrays, without implicit decryption."""
+"""Packlier: encrypted NumPy arrays, without implicit decryption."""
 
 from .paillier import (
     EncryptedNumber,

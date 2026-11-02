@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from paillier_numpy import PaillierPrivateKey, generate_paillier_keypair
-from paillier_numpy import paillier as implementation
+from packlier import PaillierPrivateKey, generate_paillier_keypair
+from packlier import paillier as implementation
 
 
 def test_independent_randomizers(keys, monkeypatch):

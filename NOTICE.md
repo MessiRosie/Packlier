@@ -1,6 +1,6 @@
 # Provenance and licensing
 
-This package's NumPy adapter is newly written, inspired by the API and
+Packlier's NumPy adapter is newly written, inspired by the API and
 limitations of the PyPI `paillier-numpy` 0.0.2 distribution (project metadata
 names Galloroc / Galloroc1). That distribution refers to `data61/python-paillier`
 as its main reference project.

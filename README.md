@@ -1,4 +1,4 @@
-# paillier-numpy-plus
+# Packlier
 
 A new, installable encrypted-array package inspired by `paillier-numpy 0.0.2`.
 It implements `@`, indexing, and selected NumPy ufuncs without decrypting data.
@@ -25,14 +25,14 @@ python -m pytest
 python -m build
 ```
 
-The distribution name is `paillier-numpy-plus`; the import name is
-`paillier_numpy`. This repository is not a claim of publication on PyPI.
+The distribution name is `Packlier`; the import name is
+`packlier`. This repository is not a claim of publication on PyPI.
 
 ## Quick start
 
 ```python
 import numpy as np
-from paillier_numpy import generate_paillier_keypair
+from packlier import generate_paillier_keypair
 
 public, private = generate_paillier_keypair()  # 3072-bit default
 matrix = np.array([[1.25, -2.0], [3.0, 4.5]])
@@ -154,7 +154,7 @@ use the high-level API instead.
 
 ```python
 import numpy as np
-from paillier_numpy import generate_paillier_keypair
+from packlier import generate_paillier_keypair
 
 def main():
     public, private = generate_paillier_keypair()
@@ -180,7 +180,7 @@ inputs.
 
 ## Migration from paillier-numpy 0.0.2
 
-- Replace `from paillier import ...` with `from paillier_numpy import ...`.
+- Replace `from paillier import ...` with `from packlier import ...`.
 - Common encryption, decryption, arithmetic, `.dot()`, and `.toArray()`
   workflows remain available. This is not a full drop-in replacement for
   every internal helper or serialized object of the original package.
