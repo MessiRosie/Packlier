@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paillier-numpy-plus"
+version = "0.1.0"
+description = "Paillier encrypted arrays with NumPy indexing, matmul, and ufunc dispatch"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE", "NOTICE.md"]
+dependencies = ["numpy>=1.26,<3", "phe>=1.5,<2"]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "build>=1", "setuptools>=77", "wheel"]
+fast = ["gmpy2>=2.1"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
